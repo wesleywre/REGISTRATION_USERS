@@ -1,11 +1,11 @@
 from app import app
 from flask import jsonify
-from ..views import users
+from ..views import users, helper
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    return users.index()
+@app.route('/send_email', methods=['GET', 'POST'])
+def send_email():
+    return users.send_email()
 
 @app.route('/confirm_email/<token>')
 def confirm_email(token):
@@ -30,3 +30,12 @@ def get_user(id):
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_user(id):
     return users.delete_user(id)
+
+@app.route('/auth', methods=['POST'])
+def authenticate():
+    return helper.auth()
+
+@app.route('/', methods=['GET'])
+@helper.token_required
+def root(current_user):
+    return jsonify({'message': f'Hello {current_user.name}'})

@@ -8,14 +8,14 @@ from app import Message, mail, url_for
 
 s = URLSafeTimedSerializer('Thisisasecret!')
 
-def index():
+def send_email():
     if request.method == 'GET':
-        return '<form action="/" method="POST"><input name="email"><input type="submit"></form>'
+        return '<form action="/send_email" method="POST"><input name="email"><input type="submit"></form>'
 
     email = request.form['email']
     token = s.dumps(email, salt='email-confirm')
 
-    msg = Message('Confirm Email', sender='anthony@prettyprinted.com', recipients=[email])
+    msg = Message('Confirm Email', sender='wesley_wre@hotmail.com', recipients=[email])
 
     link = url_for('confirm_email', token=token, _external=True)
 
@@ -106,3 +106,10 @@ def delete_user(id):
             return jsonify({'message': 'successfully deleted', 'data': result}), 200
         except:
             return jsonify({'message': 'unable to delete', 'data': {}}), 500
+        
+        
+def user_by_username(user_name):
+    try:
+        return Users.query.filter(Users.user_name == user_name).one()
+    except:
+        return None
