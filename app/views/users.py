@@ -2,7 +2,35 @@ from werkzeug.security import generate_password_hash
 from app import db
 from flask import request, jsonify
 from ..models.users import Users, user_schema, users_schema
+import uuid
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+from app import Message, mail, url_for
 
+s = URLSafeTimedSerializer('Thisisasecret!')
+
+def index():
+    if request.method == 'GET':
+        return '<form action="/" method="POST"><input name="email"><input type="submit"></form>'
+
+    email = request.form['email']
+    token = s.dumps(email, salt='email-confirm')
+
+    msg = Message('Confirm Email', sender='anthony@prettyprinted.com', recipients=[email])
+
+    link = url_for('confirm_email', token=token, _external=True)
+
+    msg.body = 'Your link is {}'.format(link)
+
+    mail.send(msg)
+
+    return '<h1>The email you entered is {}. The token is {}</h1>'.format(email, token)
+
+def confirm_email(token):
+    try:
+        email = s.loads(token, salt='email-confirm', max_age=3600)
+    except SignatureExpired:
+        return '<h1>The token is expired!</h1>'
+    return '<h1>The token works!</h1>'
 
 def post_user():
     first_name       = request.json['first_name']
@@ -11,7 +39,8 @@ def post_user():
     user_name        = request.json['user_name']
     password         = request.json['password']
     password_hash    = generate_password_hash(password)
-    user             = Users(first_name, last_name, email, user_name, password_hash)
+    security_stamp   = str(uuid.uuid4())
+    user             = Users(first_name, last_name, email, user_name, password_hash, security_stamp)
     
     try:
         db.session.add(user)

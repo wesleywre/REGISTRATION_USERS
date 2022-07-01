@@ -16,12 +16,13 @@ class Users(db.Model):
     lockout_end         = db.Column(db.DateTime, default=None)
     created_on          = db.Column(db.DateTime, default=datetime.datetime.now())
     
-    def __init__(self, first_name, last_name, email, user_name, password_hash):
+    def __init__(self, first_name, last_name, email, user_name, password_hash, security_stamp):
         self.first_name       = first_name
         self.last_name        = last_name
         self.email            = email
         self.user_name        = user_name
         self.password_hash    = password_hash
+        self.security_stamp   = security_stamp
         
 #Definindo o Schema do MArshmallow para facilitar a utilização do JSON
 class UsersSchema(ma.Schema):
