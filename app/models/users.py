@@ -9,7 +9,7 @@ class Users(db.Model):
     email               = db.Column(db.String(50), unique=True, nullable=False)
     email_confirmed     = db.Column(db.Boolean, default=False)
     user_name           = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash       = db.Column(db.String(45), nullable=False)
+    password_hash       = db.Column(db.String(155), nullable=False)
     security_stamp      = db.Column(db.String(255), default=None)
     access_failed_count = db.Column(db.SmallInteger)
     lockout_enabled     = db.Column(db.Boolean, default=False)

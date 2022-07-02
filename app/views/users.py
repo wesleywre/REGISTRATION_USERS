@@ -6,16 +6,15 @@ import uuid
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from app import Message, mail, url_for
 
-s = URLSafeTimedSerializer('Thisisasecret!')
-
 def send_email():
     if request.method == 'GET':
         return '<form action="/send_email" method="POST"><input name="email"><input type="submit"></form>'
 
     email = request.form['email']
-    token = s.dumps(email, salt='email-confirm')
+    user = Users.query.filter(Users.email == email).one()
+    token = user.security_stamp
 
-    msg = Message('Confirm Email', sender='wesley_wre@hotmail.com', recipients=[email])
+    msg = Message('Confirm Email', sender='tech@rodaconveniencia.com.br', recipients=[email])
 
     link = url_for('confirm_email', token=token, _external=True)
 
@@ -27,10 +26,14 @@ def send_email():
 
 def confirm_email(token):
     try:
-        email = s.loads(token, salt='email-confirm', max_age=3600)
-    except SignatureExpired:
-        return '<h1>The token is expired!</h1>'
-    return '<h1>The token works!</h1>'
+        user = Users.query.filter(Users.security_stamp == token).one()
+        if token == user.security_stamp:
+            user.email_confirmed  = 1
+            db.session.commit()
+            return '<h1>The token works!</h1>'
+    except:
+        return '<h1>The token invalid!</h1>'
+    
 
 def post_user():
     first_name       = request.json['first_name']
