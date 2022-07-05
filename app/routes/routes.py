@@ -38,4 +38,4 @@ def authenticate():
 @app.route('/', methods=['GET'])
 @helper.token_required
 def root(current_user):
-    return jsonify({'message': f'Hello {current_user.name}'})
+    return jsonify({'message': f'User {current_user.user_name} autorizado'})
