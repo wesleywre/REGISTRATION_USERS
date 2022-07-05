@@ -17,6 +17,8 @@ def auth():
         return jsonify({'message': 'user not found', 'data': {}}), 401
     
     if user and check_password_hash(user.password_hash, auth.password):
+        if user.email_confirmed == 0:
+            return jsonify({'message': 'Please confirm your email to enter.'}), 401
         token = jwt.encode({'username': user.user_name, 'exp': datetime.utcnow() + timedelta(hours=1)}, app.config['SECRET_KEY'], algorithm="HS256")
         return jsonify({'message': 'Validate successfully', 'token': token, 'exp': datetime.utcnow() + timedelta(hours=1)})
     return jsonify({'message': 'could not verify', 'WWW-Authenticate': 'Basic auth="Login Required"'}), 401
