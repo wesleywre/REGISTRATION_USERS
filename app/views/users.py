@@ -4,7 +4,7 @@ from flask import request, jsonify
 from ..models.users import Users, user_schema, users_schema
 import uuid
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-from app import Message, mail, url_for
+from app import Message, mail, url_for, login
 
 def send_email():
     if request.method == 'GET':
@@ -35,7 +35,7 @@ def confirm_email(token):
         return '<h1>The token invalid!</h1>'
     
 
-def post_user():
+def post_user(user):
     first_name       = request.json['first_name']
     last_name        = request.json['last_name']
     email            = request.json['email']
@@ -54,7 +54,7 @@ def post_user():
         return jsonify({'message': 'unable to create', 'data': {}}), 500
     
     
-def update_user(id):
+def update_user(user, id):
     first_name       = request.json['first_name']
     last_name        = request.json['last_name']
     email            = request.json['email']
@@ -80,7 +80,7 @@ def update_user(id):
     except:
         return jsonify({'message': 'unable to update', 'data': {}}), 500
     
-def get_users():
+def get_users(users):
     users = Users.query.all()
     if users:
         result = users_schema.dump(users)
@@ -88,7 +88,7 @@ def get_users():
     
     return jsonify({'message': 'nothing found', 'data': {}})
 
-def get_user(id):
+def get_user(user, id):
     user = Users.query.get(id)
     if user:
         result = user_schema.dump(user)
@@ -96,7 +96,7 @@ def get_user(id):
     
     return jsonify({'message': "user don't exist", 'data': {}}), 404
 
-def delete_user(id):
+def delete_user(user, id):
     user = Users.query.get(id)
     if not user:
         return jsonify({'message': "user don't exist", 'data': {}}), 404
@@ -116,3 +116,8 @@ def user_by_username(user_name):
         return Users.query.filter(Users.user_name == user_name).one()
     except:
         return None
+    
+    
+@login.user_loader
+def load_user(id):
+    return Users.query.get(int(id))

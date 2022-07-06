@@ -6,6 +6,7 @@ from flask import request, jsonify
 from .users import user_by_username
 import jwt
 from werkzeug.security import check_password_hash
+from flask_login import current_user, login_user
 
 def auth():
     auth = request.authorization
@@ -19,6 +20,7 @@ def auth():
     if user and check_password_hash(user.password_hash, auth.password):
         if user.email_confirmed == 0:
             return jsonify({'message': 'Please confirm your email to enter.'}), 401
+        login_user(user)
         token = jwt.encode({'username': user.user_name, 'exp': datetime.utcnow() + timedelta(hours=1)}, app.config['SECRET_KEY'], algorithm="HS256")
         return jsonify({'message': 'Validate successfully', 'token': token, 'exp': datetime.utcnow() + timedelta(hours=1)})
     return jsonify({'message': 'could not verify', 'WWW-Authenticate': 'Basic auth="Login Required"'}), 401
@@ -37,3 +39,16 @@ def token_required(f):
             return jsonify({'message': 'token is invalid or expired', 'data': {}}), 401
         return f(current_user, *args, **kwargs)
     return decorated
+
+def requires_access_level(access_level):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated: #the user is not logged in
+                return jsonify({'message': 'User is not logged in'}), 401
+
+            if not current_user.allowed(access_level):
+                return jsonify({'message': 'You do not have access to this resource.'}), 401
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
