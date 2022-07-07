@@ -3,9 +3,8 @@ from flask import jsonify
 from ..views import users, helper
 
 ACCESS = {
-    'guest': 0,
-    'user': 1,
-    'admin': 2
+    'user': 0,
+    'admin': 1
 }
 
 
@@ -20,13 +19,13 @@ def authenticate():
 
 @app.route('/v1/users', methods=['GET'])
 @helper.token_required
-@helper.requires_access_level(ACCESS['guest'])
+@helper.requires_access_level(ACCESS['user'])
 def get_users(current_user):
     return users.get_users(current_user)
 
 @app.route('/v1/users/<id>', methods=['GET'])
 @helper.token_required
-@helper.requires_access_level(ACCESS['guest'])
+@helper.requires_access_level(ACCESS['user'])
 def get_user(current_user, id):
     return users.get_user(current_user, id)
 
@@ -56,3 +55,8 @@ def send_email():
 @app.route('/confirm_email/<token>')
 def confirm_email(token):
     return users.confirm_email(token)
+
+@app.route('/v1/logout', methods=['POST'])
+@helper.token_required
+def logout(current_user):
+    return helper.logout(current_user)

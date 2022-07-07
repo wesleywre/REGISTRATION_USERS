@@ -4,9 +4,8 @@ from flask_login import UserMixin
 
 
 ACCESS = {
-    'guest': 0,
-    'user': 1,
-    'admin': 2
+    'user': 0,
+    'admin': 1
 }
 
 #Definição da classe/tabela dos usuários e seus campos
@@ -26,7 +25,7 @@ class Users(UserMixin, db.Model):
     created_on          = db.Column(db.DateTime, default=datetime.datetime.now())
     access              = db.Column(db.Integer)
     
-    def __init__(self, first_name, last_name, email, user_name, password_hash, security_stamp, access=ACCESS['guest']):
+    def __init__(self, first_name, last_name, email, user_name, password_hash, security_stamp, access=ACCESS['user']):
         self.first_name       = first_name
         self.last_name        = last_name
         self.email            = email
