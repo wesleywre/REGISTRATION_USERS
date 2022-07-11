@@ -35,11 +35,11 @@ def confirm_email(token):
         return '<h1>The token invalid!</h1>'
     
 
-def post_user(user):
+def registration_user():
     first_name       = request.json['first_name']
     last_name        = request.json['last_name']
     email            = request.json['email']
-    user_name        = request.json['user_name']
+    user_name        = email
     password         = request.json['password']
     password_hash    = generate_password_hash(password)
     security_stamp   = str(uuid.uuid4())
@@ -58,7 +58,6 @@ def update_user(user, id):
     first_name       = request.json['first_name']
     last_name        = request.json['last_name']
     email            = request.json['email']
-    user_name        = request.json['user_name']
     password         = request.json['password']
     
     user = Users.query.get(id)
@@ -72,7 +71,7 @@ def update_user(user, id):
         user.first_name = first_name
         user.last_name  = last_name
         user.email      = email
-        user.user_name  = user_name
+        user.user_name  = email
         user.password   = password_hash
         db.session.commit()
         result = user_schema.dump(user)

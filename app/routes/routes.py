@@ -13,9 +13,9 @@ ACCESS = {
 def root(current_user):
     return jsonify({'message': f'User {current_user.user_name} autorizado'})
 
-@app.route('/v1/authenticate', methods=['POST'])
+@app.route('/v1/login', methods=['POST'])
 def authenticate():
-    return helper.auth()
+    return helper.login()
 
 @app.route('/v1/users', methods=['GET'])
 @helper.token_required
@@ -29,10 +29,9 @@ def get_users(current_user):
 def get_user(current_user, id):
     return users.get_user(current_user, id)
 
-@app.route('/v1/users', methods=['POST'])
-@helper.token_required
-def post_user(current_user):
-    return users.post_user(current_user)
+@app.route('/v1/registration', methods=['POST'])
+def registration_user():
+    return users.registration_user()
 
 @app.route('/v1/users/<id>', methods=['DELETE'])
 @helper.token_required

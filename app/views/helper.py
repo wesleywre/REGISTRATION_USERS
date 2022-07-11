@@ -8,7 +8,7 @@ import jwt
 from werkzeug.security import check_password_hash
 from flask_login import current_user, login_user, logout_user
 
-def auth():
+def login():
     auth = request.authorization
     if not auth or not auth.username or not auth.password:
         return jsonify({'message': 'could not verify', 'WWW-Authenticate': 'Basic auth="Login Required"'}), 401
